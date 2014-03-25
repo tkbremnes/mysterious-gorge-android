@@ -1,7 +1,6 @@
 package com.example.app;
 
 import android.app.Activity;
-import android.app.ActionBar;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -15,8 +14,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
 import android.widget.TextView;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -45,7 +47,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mDisplay = (TextView) findViewById(R.id.display);
+//        mDisplay = (TextView) findViewById(R.id.display);
 
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
@@ -131,7 +133,7 @@ public class MainActivity extends Activity {
      * shared preferences.
      */
     private void registerInBackground() {
-        new AsyncTask() {
+        new AsyncTask<Void, Void, String>() {
             @Override
             protected String doInBackground(Void... params) {
                 String msg = "";
@@ -235,5 +237,21 @@ public class MainActivity extends Activity {
             return rootView;
         }
     }
+
+    private boolean checkPlayServices() {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
+                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            } else {
+                Log.i(TAG, "This device is not supported.");
+                finish();
+            }
+            return false;
+        }
+        return true;
+    }
+
 
 }
